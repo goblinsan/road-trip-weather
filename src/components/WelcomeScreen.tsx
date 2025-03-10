@@ -15,8 +15,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onRouteWeather }) => {
     e.preventDefault();
 
     try {
-      // Fetch coordinates for source and destination using Google Geocoding API
-      const sourceResponse = await axios.get(`/api/geocode/json`, {
+      // Fetch coordinates for source and destination using the serverless function
+      const sourceResponse = await axios.get(`/api/geocode`, {
         params: {
           address: source,
           key: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -24,7 +24,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onRouteWeather }) => {
       });
       const sourceCoords = sourceResponse.data.results[0].geometry.location;
 
-      const destinationResponse = await axios.get(`/api/geocode/json`, {
+      const destinationResponse = await axios.get(`/api/geocode`, {
         params: {
           address: destination,
           key: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -32,9 +32,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onRouteWeather }) => {
       });
       const destinationCoords = destinationResponse.data.results[0].geometry.location;
 
-      // Fetch route data from Google Routes API
+      // Fetch route data from Google Routes API using the serverless function
       const routeResponse = await axios.post(
-        `/api/google-maps/directions/v2:computeRoutes`,
+        `/api/routes`,
         {
           origin: {
             location: {
@@ -67,16 +67,12 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onRouteWeather }) => {
           params: {
             key: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
           },
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline',
-          },
         }
       );
       const routeData = routeResponse.data;
 
-      // Fetch weather data from OpenWeatherMap One Call API
-      const weatherResponse = await axios.get(`/api/openweathermap/data/2.5/weather`, {
+      // Fetch weather data from OpenWeatherMap One Call API using the serverless function
+      const weatherResponse = await axios.get(`/api/weather`, {
         params: {
           lat: destinationCoords.lat,
           lon: destinationCoords.lng,
